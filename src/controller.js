@@ -19,6 +19,20 @@ async function getContract(contractId, user) {
     return contract;
 }
 
+async function getContracts(user) {
+    const { Contract } = sequelize.models;
+
+    const contracts = await Contract.findAll({
+        where: or(
+            { ClientId: user.id },
+            { ContractorId: user.id }
+        )
+    });
+
+    return contracts;
+}
+
 module.exports = {
-    getContract
+    getContract,
+    getContracts
 }

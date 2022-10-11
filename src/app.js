@@ -24,5 +24,17 @@ app.get('/contracts/:id', getProfile, async (req, res) => {
     }
 });
 
+app.get('/contracts', getProfile, async (req, res) => {
+    try {
+        const contracts = await controller.getContracts(req.profile);
+
+        res.status(200).json(contracts);
+    } catch(error) {
+        console.log('ERROR: ', error);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
+
 
 module.exports = app;
