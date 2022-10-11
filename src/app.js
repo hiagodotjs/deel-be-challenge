@@ -79,7 +79,11 @@ app.get('/admin/best-profession', async (req, res) => {
     try {
         const { start, end } = req.query;
 
-        
+        if(!start || !end) res.status(400).send('A start and end date are mandatory');
+
+        const bestProfession = await controller.getBestProfessionInPeriod(start, end);
+
+        res.status(200).send(bestProfession);
     } catch(error) {
         console.log('ERROR: ', error);
         return res.status(500).send('Internal Server Error');

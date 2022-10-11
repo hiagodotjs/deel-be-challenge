@@ -1,7 +1,6 @@
-const { or, and, Op } = require('sequelize');
+const { or, and, Op, QueryTypes } = require('sequelize');
 
 const { sequelize } = require('./model')
-
 
 async function getContract(contractId, user) {
     const { Contract } = sequelize.models;
@@ -160,11 +159,34 @@ async function depositFundsToBalance(amount, user) {
 
 }
 
+async function getBestProfessionInPeriod(start, end) {
+    const result = await sequelize.query(
+        `
+        SELECT Profiles.profession, SUM(Jobs.price) as earned FROM Jobs
+        JOIN Contracts ON Jobs.ContractId = Contracts.id
+        JOIN Profiles ON Contracts.ContractorId = Profiles.id
+        WHERE Jobs.paid = true
+        AND Jobs.paymentDate > $1
+        AND Jobs.paymentDate < $2
+        GROUP BY profession
+        ORDER BY earned DESC
+        LIMIT 1;
+        `,
+        {
+            bind: [start, end],
+            type: QueryTypes.SELECT
+        }
+    )
+
+    return result[0] || null;
+}
+
 
 module.exports = {
     getContract,
     getContracts,
     getUnpaidJobs,
     payJob,
-    depositFundsToBalance
+    depositFundsToBalance,
+    getBestProfessionInPeriod
 }
