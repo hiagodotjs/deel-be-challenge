@@ -32,7 +32,29 @@ async function getContracts(user) {
     return contracts;
 }
 
+async function getUnpaidJobs(user) {
+    const { Contract, Job } = sequelize.models;
+
+    const unpaidJobs = await Job.findAll({
+        where: { paid: { [Op.not]: true } },
+        include: [{
+            model: Contract,
+            required: true,
+            where: and(
+                { status: 'in_progress' },
+                or(
+                    { ClientId: user.id },
+                    { ContractorId: user.id }
+                )
+            )
+        }]
+    });
+
+    return unpaidJobs;
+}
+
 module.exports = {
     getContract,
-    getContracts
+    getContracts,
+    getUnpaidJobs
 }

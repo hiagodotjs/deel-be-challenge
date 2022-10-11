@@ -35,6 +35,17 @@ app.get('/contracts', getProfile, async (req, res) => {
     }
 });
 
+app.get('/jobs/unpaid', getProfile, async (req, res) => {
+    try {
+        const unpaidJobs = await controller.getUnpaidJobs(req.profile);
+
+        res.status(200).json(unpaidJobs);
+    } catch(error) {
+        console.log('ERROR: ', error);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
 
 
 module.exports = app;
