@@ -82,6 +82,8 @@ app.get('/admin/best-profession', async (req, res) => {
 
         if(!start || !end) return res.status(400).send('A start and end date are mandatory');
 
+        if(!isValidDate(start) || !isValidDate(end)) return res.status(400).send('Date format is invalid');
+
         const bestProfession = await controller.getBestProfessionInPeriod(start, end);
 
         return res.status(200).send(bestProfession);
