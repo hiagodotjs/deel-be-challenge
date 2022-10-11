@@ -123,12 +123,13 @@ async function depositFundsToBalance(amount, user) {
 
         const totalToPayInJobs = await Job.sum('price', {
             where: { paid: { [Op.not]: true } },
+            transaction,
             include: [{
                 model: Contract,
                 required: true,
                 where: and(
-                    {status: 'in_progress'},
-                    {ClientId: user.id},
+                    { status: 'in_progress' },
+                    { ClientId: user.id },
                 )
             }]
         });
