@@ -46,6 +46,17 @@ app.get('/jobs/unpaid', getProfile, async (req, res) => {
     }
 });
 
+app.post('/jobs/:job_id/pay', getProfile, async (req, res) => {
+    try {
+        const { job_id } = req.params;
 
+        await controller.payJob(job_id, req.profile);
+
+        res.status(200).end();
+    } catch(error) {
+        console.log('ERROR: ', error);
+        return res.status(error.status || 500).send(error.message || 'Internal Server Error');
+    }
+});
 
 module.exports = app;
