@@ -1,3 +1,43 @@
+# MY PERSONAL CONSIDERATIONS
+## Sequelize
+I've never worked with Sequelize. So I had some problems doing the last two queries using it. So I wrote them using a raw query. I wouldn't be able to figure out what was causing the error in time. but i was going in a line something like this:
+
+```js script
+Job.findAll({
+        where: { paid: { [Op.is]: true } },
+        attributes: [
+            [sequelize.fn('sum', sequelize.col('price')), 'total']
+        ],
+        include: [{
+            model: Contract,
+            required: true,
+            include: [{
+                model: Profile,
+                required: true,
+                as: 'Contractor',
+                attributes: ['profession']
+            }]
+        }],
+        group: [Profile.profession],
+    })  
+```
+
+## Deposit endpoint
+For me it was not very clear what the deposit endpoint should do. Whether it was for a client to deposit into their own account or the account of another. So I considered that it was about the client depositing an amount in his own account. So I removed the userId from the url and used the id provided in the profile.
+
+## Some improvements I would make with more time
+### Jest
+I would use jest to write some unit tests for the controllers
+
+### ESlint
+I would install and configure eslint to force a code pattern
+
+### Husky
+I would configure husky to create a hook to run eslint and unit tests before pushing code
+
+### Structure
+I would separate the routes from the project root file and put them in different files. would also separate the controllers.
+
 # DEEL BACKEND TASK
 
   
