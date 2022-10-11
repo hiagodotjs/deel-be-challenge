@@ -59,4 +59,33 @@ app.post('/jobs/:job_id/pay', getProfile, async (req, res) => {
     }
 });
 
+app.post('/balances/deposit', getProfile, async (req, res) => {
+    try {
+        const { amount } = req.body;
+
+        if(amount < 1) res.status(400).send('Amount must be a positive value');
+        if(req.profile.type !== 'client') res.status(403).send('Must be a client');
+
+        await controller.depositFundsToBalance(amount, req.profile)
+
+        res.status(200).end();
+    } catch(error) {
+        console.log('ERROR: ', error);
+        return res.status(error.status || 500).send(error.message || 'Internal Server Error');
+    }
+});
+
+app.get('/admin/best-profession', async (req, res) => {
+    try {
+        const { start, end } = req.query;
+
+        
+    } catch(error) {
+        console.log('ERROR: ', error);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
+
+
 module.exports = app;

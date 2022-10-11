@@ -104,7 +104,6 @@ async function payJob(jobId, user) {
 
         await transaction.commit();
     } catch(error) {
-        console.log(error)
         await transaction.rollback();
         if(error.status) {
             const customError = new Error(error.message);
@@ -115,9 +114,56 @@ async function payJob(jobId, user) {
     }
 }
 
+async function depositFundsToBalance(amount, user) {
+    const { Contract, Job, Profile } = sequelize.models;
+
+    const transaction = await sequelize.transaction();
+
+    try {
+
+        const totalToPayInJobs = await Job.sum('price', {
+            where: { paid: { [Op.not]: true } },
+            include: [{
+                model: Contract,
+                required: true,
+                where: and(
+                    {status: 'in_progress'},
+                    {ClientId: user.id},
+                )
+            }]
+        });
+
+        const maxValueAllowedToDeposit = totalToPayInJobs * 0.25;
+
+        if(amount > maxValueAllowedToDeposit) {
+            const error = new Error('Amount exceeds the allowable deposit amount');
+            error.status = 406;
+            throw error;
+        }
+
+        await Profile.increment({ balance: amount }, {
+            where: { id: user.id },
+            transaction
+        });
+
+        await transaction.commit();
+    } catch(error) {
+        await transaction.rollback();
+        if(error.status) {
+            const customError = new Error(error.message);
+            customError.status = error.status;
+            throw customError;
+        }
+        throw new Error(error);
+    }
+
+}
+
+
 module.exports = {
     getContract,
     getContracts,
     getUnpaidJobs,
-    payJob
+    payJob,
+    depositFundsToBalance
 }
