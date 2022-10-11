@@ -181,6 +181,28 @@ async function getBestProfessionInPeriod(start, end) {
     return result[0] || null;
 }
 
+async function getBestClientsInPeriod(start, end, limit) {
+    const result = await sequelize.query(
+        `
+        SELECT Profiles.id, Profiles.firstName, Profiles.lastName, Profiles.profession, SUM(Jobs.price) as paid FROM Jobs
+        JOIN Contracts ON Jobs.ContractId = Contracts.id
+        JOIN Profiles ON Contracts.ClientId = Profiles.id
+        WHERE Jobs.paid = true
+        AND Jobs.paymentDate > $1
+        AND Jobs.paymentDate < $2
+        GROUP BY Profiles.id
+        ORDER BY paid DESC
+        LIMIT $3;
+        `,
+        {
+            bind: [start, end, limit],
+            type: QueryTypes.SELECT
+        }
+    )
+
+    return result;
+}
+
 
 module.exports = {
     getContract,
@@ -188,5 +210,6 @@ module.exports = {
     getUnpaidJobs,
     payJob,
     depositFundsToBalance,
-    getBestProfessionInPeriod
+    getBestProfessionInPeriod,
+    getBestClientsInPeriod
 }
